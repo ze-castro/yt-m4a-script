@@ -50,17 +50,22 @@ for file in "$BASE_DIR/music/"*.mp3; do
     echo "Original: $original_filename"
     
     # Process in a specific order to avoid whitespace issues
-    # 1. First remove everything inside parentheses including the parentheses
+    # 1. Remove everything inside parentheses including the parentheses
     temp_filename=$(echo "$original_filename" | sed -E 's/\([^)]*\)//g')
-    echo "After parentheses removal: '$temp_filename'"
     
-    # 2. Remove the artist's name and dash (for patterns like "Artist - Title")
+    # 2. Remove everything inside square brackets including the brackets
+    temp_filename=$(echo "$temp_filename" | sed -E 's/\[[^]]*\]//g')
+    
+    # 3. Remove everything after ANY type of vertical bar (including the bar)
+    # This handles both regular | and full-width ｜ characters
+    temp_filename=$(echo "$temp_filename" | sed -E $'s/[|｜].*$//')
+    
+    # 4. Remove the artist's name and dash (for patterns like "Artist - Title")
     temp_filename=$(echo "$temp_filename" | sed -E 's/^[^-]+ - //g')
-    echo "After artist removal: '$temp_filename'"
     
-    # 3. Remove multiple spaces and trim whitespace
+    # 5. Remove multiple spaces and trim whitespace
     sanitized_filename=$(echo "$temp_filename" | tr -s ' ' | sed -E 's/^ +| +$//g')
-    echo "After whitespace cleanup: '$sanitized_filename'"
+    echo "After sanitization: '$sanitized_filename'"
     
     # Ensure .mp3 extension
     sanitized_filename="${sanitized_filename}.mp3"
