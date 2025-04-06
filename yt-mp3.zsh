@@ -58,7 +58,7 @@ for file in "$BASE_DIR/music/"*.mp3; do
     
     # 3. Remove everything after ANY type of vertical bar (including the bar)
     # This handles both regular | and full-width ｜ characters
-    temp_filename=$(echo "$temp_filename" | sed -E $'s/[|｜].*$//')
+    temp_filename=$(echo "$temp_filename" | sed -E $'s/[|｜/].*$//')
     
     # 4. Remove the artist's name and dash (for patterns like "Artist - Title")
     temp_filename=$(echo "$temp_filename" | sed -E 's/^[^-]+ - //g')
