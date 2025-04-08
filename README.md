@@ -1,8 +1,12 @@
-# YouTube MP3 Downloader
+# YouTube Downloader
 
 <img src="/icon.png" alt="icon" width="150" height="150">
 
-This script downloads YouTube songs/playlists as high-quality MP3 files with embedded metadata and album art. It also cleans up filenames by removing artist names, "FT", and unnecessary words like "(Official Video)" or "(Audio)".
+This script downloads YouTube songs/playlists as high-quality M4A files with embedded metadata and album art. It also cleans up filenames by removing artist names, "FT", and unnecessary words like "(Official Video)" or "(Audio)".
+
+## 🙋 Why not MP3?
+
+M4A (AAC) is a more modern audio format than MP3, offering better sound quality at lower bitrates. It means that you can get the same audio quality as MP3 but with smaller file sizes. This is especially useful for music, where you want to maintain quality while saving space.
 
 ## 📌 Requirements
 
@@ -22,16 +26,16 @@ This script downloads YouTube songs/playlists as high-quality MP3 files with emb
 
 ## 🚀 How to Use
 
-1. Save the script as `yt-mp3.zsh` and give it execute permissions:
+1. Save the script as `yt-m4a.zsh` and give it execute permissions:
    ```zsh
-   chmod +x yt-mp3.zsh
+   chmod +x yt-m4a.zsh
    ```
 2. Run the script:
    ```zsh
-   ./yt-mp3.zsh
+   ./yt-m4a.zsh
    ```
-3. Enter the **YouTube video or playlist URL** when prompted.
-4. The MP3 files will be saved in `~/Downloads/music/`.
+3. When prompted, enter the **YouTube video or playlist URL** when prompted.
+4. The M4A files will be saved in `~/Downloads/music/`.
 
 ## 👾 Extra
 
@@ -52,29 +56,29 @@ This script downloads YouTube songs/playlists as high-quality MP3 files with emb
 By default, the script uses Firefox cookies. To use Chrome instead:
 
 ```sh
-BROWSER="chrome" ./yt-mp3.zsh
+BROWSER="chrome" ./yt-m4a.zsh
 ```
 
 ## 🎚 Changing Audio Quality
 
-The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command inside `yt-mp3.zsh`:
+The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command inside `yt-m4a.zsh`:
 
 - **For highest quality (default):**
   ```zsh
-  yt-dlp -x --audio-format mp3 --audio-quality 0
+  yt-dlp -x --audio-format aac --audio-quality 0
   ```
 - **For medium quality (e.g., 128kbps):**
   ```zsh
-  yt-dlp -x --audio-format mp3 --audio-quality 5
+  yt-dlp -x --audio-format aac --audio-quality 5
   ```
 - **For lower quality (e.g., 64kbps):**
   ```zsh
-  yt-dlp -x --audio-format mp3 --audio-quality 9
+  yt-dlp -x --audio-format aac --audio-quality 9
   ```
 
 ## 🎵 Features
 
-✔ **Downloads high-quality MP3**  
+✔ **Downloads high-quality M4A (AAC)**  
 ✔ **Embeds album art & metadata**  
 ✔ **Cleans filenames & metadata**  
 ✔ **Removes artist name & extra tags**  
