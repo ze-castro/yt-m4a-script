@@ -26,7 +26,8 @@ fi
 mkdir -p "$BASE_DIR/music"
 echo "Downloading from URL: $url"
 # Download using yt-dlp
-yt-dlp -x --audio-format mp3 \
+yt-dlp -x --audio-format aac \
+  --audio-quality 0 \
   --embed-thumbnail \
   --embed-metadata \
   --add-metadata \
@@ -36,7 +37,7 @@ yt-dlp -x --audio-format mp3 \
   "$url"
 echo "Download complete!"
 # Process downloaded files
-for file in "$BASE_DIR/music/"*.mp3; do
+for file in "$BASE_DIR/music/"*.m4a; do
   if [ ! -f "$file" ]; then
     continue
   fi
@@ -44,9 +45,9 @@ for file in "$BASE_DIR/music/"*.mp3; do
   artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
   if [[ -n "$artist" ]]; then
     # Keep only the first artist name
-    clean_artist=$(echo "$artist" | sed -E 's/,.*//')
+    clean_artist=$(echo "$artist" | sed -E 's/[,&].*//')
     # Sanitize filename:
-    original_filename=$(basename "$file" .mp3)
+    original_filename=$(basename "$file" .m4a)
     echo "Original: $original_filename"
     
     # Process in a specific order to avoid whitespace issues
@@ -67,8 +68,8 @@ for file in "$BASE_DIR/music/"*.mp3; do
     sanitized_filename=$(echo "$temp_filename" | tr -s ' ' | sed -E 's/^ +| +$//g')
     echo "After sanitization: '$sanitized_filename'"
     
-    # Ensure .mp3 extension
-    sanitized_filename="${sanitized_filename}.mp3"
+    # Ensure .m4a extension
+    sanitized_filename="${sanitized_filename}.m4a"
     
     # Rename file
     new_file="${file%/*}/$sanitized_filename"
@@ -76,8 +77,8 @@ for file in "$BASE_DIR/music/"*.mp3; do
     echo "Sanitized filename: $file -> $new_file"
     
     # Update metadata with only one artist name
-    ffmpeg -i "$new_file" -metadata artist="$clean_artist" -metadata title="${sanitized_filename%.mp3}" -codec copy "${new_file%.mp3}_temp.mp3"
-    mv "${new_file%.mp3}_temp.mp3" "$new_file"
+    ffmpeg -i "$new_file" -metadata artist="$clean_artist" -metadata title="${sanitized_filename%.m4a}" -codec copy "${new_file%.m4a}_temp.m4a"
+    mv "${new_file%.m4a}_temp.m4a" "$new_file"
     echo "Updated metadata for: $new_file"
   else
     echo "Error: Failed to extract artist metadata for $file. Skipping..."
