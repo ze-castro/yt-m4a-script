@@ -45,7 +45,7 @@ for file in "$BASE_DIR/music/"*.m4a; do
   artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
   if [[ -n "$artist" ]]; then
     # Keep only the first artist name
-    clean_artist=$(echo "$artist" | sed -E 's/[,&].*//')
+    clean_artist=$(echo "$artist" | sed -E 's/[,&;].*//')
     # Sanitize filename:
     original_filename=$(basename "$file" .m4a)
     echo "Original: $original_filename"
