@@ -8,6 +8,14 @@ This script downloads YouTube songs/playlists as high-quality M4A files with emb
 
 M4A (AAC) is a more modern audio format than MP3, offering better sound quality at lower bitrates. It means that you can get the same audio quality as MP3 but with smaller file sizes. This is especially useful for music, where you want to maintain quality while saving space.
 
+## 🎵 Features
+
+✅ **Downloads high-quality M4A (AAC)**  
+✅ **Embeds album art & metadata**  
+✅ **Cleans filenames & metadata**  
+✅ **Removes artist name & extra tags**  
+✅ **Automatically fetches login cookies**
+
 ## 📌 Requirements
 
 1. Install **yt-dlp**:
@@ -27,11 +35,9 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 ## 🚀 How to Use
 
 1. Check your browser! If you use Google Chrome change `BROWSER` to `chrome`:
-
-```zsh
-BROWSER="chrome" ./yt-m4a.zsh
-```
-
+   ```zsh
+   BROWSER="chrome" ./yt-m4a.zsh
+   ```
 2. Save the script as `yt-m4a.zsh` and give it execute permissions:
    ```zsh
    chmod +x yt-m4a.zsh
@@ -43,11 +49,11 @@ BROWSER="chrome" ./yt-m4a.zsh
 4. When prompted, enter the **YouTube video or playlist URL** when prompted.
 5. The M4A files will be saved in `~/Downloads/music/`.
 
-NOTE: I recommend donwloading from `music.youtube.com` as it often has the correct metadata and album art.
+**NOTE**: I recommend donwloading from `music.youtube.com` as it often has the correct metadata and album art.
 
-## 👾 Extra
+## 👾 Extra (MacOS only)
 
-### To double click to open the script (MacOS only):
+### To double click to open the script:
 
 1. Right-click the script and select **Rename**.
 2. Change the file extension from `.zsh` to `.command`.
@@ -75,13 +81,5 @@ The script downloads the **best available** audio quality by default. To specify
   ```zsh
   yt-dlp -x --audio-format aac --audio-quality 9
   ```
-
-## 🎵 Features
-
-✔ **Downloads high-quality M4A (AAC)**  
-✔ **Embeds album art & metadata**  
-✔ **Cleans filenames & metadata**  
-✔ **Removes artist name & extra tags**  
-✔ **Automatically fetches login cookies**
 
 Enjoy your music! 🎶
