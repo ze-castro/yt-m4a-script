@@ -26,42 +26,42 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 
 ## 🚀 How to Use
 
-1. Save the script as `yt-m4a.zsh` and give it execute permissions:
+1. Check your browser! If you use Google Chrome change `BROWSER` to `chrome`:
+
+```zsh
+BROWSER="chrome" ./yt-m4a.zsh
+```
+
+2. Save the script as `yt-m4a.zsh` and give it execute permissions:
    ```zsh
    chmod +x yt-m4a.zsh
    ```
-2. Run the script:
+3. Run the script:
    ```zsh
    ./yt-m4a.zsh
    ```
-3. When prompted, enter the **YouTube video or playlist URL** when prompted.
-4. The M4A files will be saved in `~/Downloads/music/`.
+4. When prompted, enter the **YouTube video or playlist URL** when prompted.
+5. The M4A files will be saved in `~/Downloads/music/`.
+
+NOTE: I recommend donwloading from `music.youtube.com` as it often has the correct metadata and album art.
 
 ## 👾 Extra
 
-### To double click to open the script:
+### To double click to open the script (MacOS only):
 
 1. Right-click the script and select **Rename**.
 2. Change the file extension from `.zsh` to `.command`.
 
-### To add an icon to the command file:
+### To add an icon to the .command file:
 
 1. Right-click the `.command` file and select **Get Info**.
 2. Drag and drop the .icns image into the top left corner of the **Get Info** window.
 3. Close the **Get Info** window.
 4. Now, you can double-click the `.command` file to run the script.
 
-## 🔄 Using Chrome Instead of Firefox
-
-By default, the script uses Firefox cookies. To use Chrome instead:
-
-```sh
-BROWSER="chrome" ./yt-m4a.zsh
-```
-
 ## 🎚 Changing Audio Quality
 
-The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command inside `yt-m4a.zsh`:
+The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command:
 
 - **For highest quality (default):**
   ```zsh
