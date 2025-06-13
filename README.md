@@ -30,13 +30,13 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
    sudo apt install ffmpeg  # Linux
    choco install ffmpeg  # Windows
    ```
-3. Ensure **Firefox** or **Chrome** is installed (for automatic YouTube login cookies).
+3. Ensure **Firefox**, **Chrome** or **Safari** is installed (for automatic YouTube login cookies).
 
 ## 🚀 How to Use
 
 1. Check your browser! If you use Google Chrome change `BROWSER` to `chrome`:
    ```zsh
-   BROWSER="chrome" ./yt-m4a.zsh
+   BROWSER="chrome" # Change this to your preferred browser.
    ```
 2. Save the script as `yt-m4a.zsh` and give it execute permissions:
    ```zsh
