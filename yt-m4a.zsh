@@ -21,8 +21,8 @@ check_dependencies() {
 
 get_browser_cookies() {
   echo "Getting cookies from $BROWSER browser..."
-  yt-dlp --cookies-from-browser $BROWSER --cookies $COOKIES_FILE -f "bestaudio" --quiet --no-warnings --skip-download "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-  
+  yt-dlp --cookies-from-browser $BROWSER --cookies "$COOKIES_FILE" --flat-playlist --quiet --no-warnings "https://www.youtube.com"
+
   if [ ! -f $COOKIES_FILE ]; then
     echo "Error: Failed to get cookies! Make sure you are logged into YouTube in your browser."
     exit 1
