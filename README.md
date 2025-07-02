@@ -35,10 +35,14 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 ## 🚀 How to Use
 
 1. Check your browser! If you use Google Chrome change `BROWSER` to `chrome`:
+
    ```zsh
    BROWSER="chrome" # Change this to your preferred browser.
    ```
-2. Save the script as `yt-m4a.zsh` and give it execute permissions:
+
+   Supported browsers are: brave, chrome, chromium, edge, firefox, opera, safari, vivaldi, whale.
+
+2. Save the script as `yt-m4a.zsh` and give it execute permissions (you can also give 'Full Disk Access' to the terminal app if you want to run it from anywhere):
    ```zsh
    chmod +x yt-m4a.zsh
    ```

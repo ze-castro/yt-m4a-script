@@ -3,7 +3,7 @@
 # CONFIGURATION
 BASE_DIR="$HOME/Downloads"
 MUSIC_DIR="$BASE_DIR/music"
-BROWSER="firefox"
+BROWSER="safari"
 COOKIES_FILE="youtube.cookies.txt"
 
 # FUNCTIONS
