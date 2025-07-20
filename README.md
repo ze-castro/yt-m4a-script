@@ -59,29 +59,17 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 
 The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command:
 
-```zsh
-MUSIC_QUALITY=0
-```
-
-```zsh
-MUSIC_QUALITY=5
-```
-
-```zsh
-MUSIC_QUALITY=9
-```
-
 - **For highest quality (default):**
   ```zsh
-  MUSIC_QUALITY=0
+  MUSIC_QUALITY=0 # 256 kbps
   ```
 - **For medium quality (e.g., 128kbps):**
   ```zsh
-  MUSIC_QUALITY=5
+  MUSIC_QUALITY=5 # 128 kbps
   ```
 - **For lower quality (e.g., 64kbps):**
   ```zsh
-  MUSIC_QUALITY=9
+  MUSIC_QUALITY=10 # 32 kbps
   ```
 
 ## 👾 Extra (MacOS only)
