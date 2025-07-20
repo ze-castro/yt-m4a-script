@@ -104,7 +104,7 @@ sanitize_filename() {
   if [[ "$SANITIZATION_MODE" == "hard" ]]; then
     clean_filename=$(echo "$clean_filename" | sed -E 's/\([^)]*\)//g')
   fi
-  
+
   clean_filename=$(echo "$clean_filename" | tr -s ' ' | sed -E 's/^ +| +$//g')
   
   echo "${clean_filename}"
@@ -121,7 +121,41 @@ update_metadata() {
     -codec copy "${file_path%.m4a}_temp.m4a"
   
   mv "${file_path%.m4a}_temp.m4a" "$file_path"
-  echo "Updated metadata for: $file_path"
+
+  process_thumbnail "$file_path"
+
+  echo "Updated metadata and artwork for: $file_path"
+}
+
+process_thumbnail() {
+  local file_path=$1
+  local temp_thumb="${file_path%.m4a}_thumb.jpg"
+  local square_thumb="${file_path%.m4a}_square.jpg"
+  
+  ffmpeg -i "$file_path" -an -vcodec copy "$temp_thumb" -v quiet -y 2>/dev/null
+  
+  if [[ -f "$temp_thumb" ]]; then
+    local width=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=width -of csv=s=x:p=0 "$temp_thumb")
+    local height=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 "$temp_thumb")
+    local size=$((width > height ? height : width))
+    
+    ffmpeg -i "$temp_thumb" \
+      -vf "crop=$size:$size:(iw-$size)/2:(ih-$size)/2" \
+      -q:v 2 "$square_thumb" -v quiet -y 2>/dev/null
+    
+    if [[ -f "$square_thumb" ]]; then
+      ffmpeg -i "$file_path" -i "$square_thumb" \
+        -map 0:a -map 1:v -c:a copy -c:v mjpeg \
+        -disposition:v:0 attached_pic \
+        "${file_path%.m4a}_final.m4a" -v quiet -y 2>/dev/null
+      
+      if [[ -f "${file_path%.m4a}_final.m4a" ]]; then
+        mv "${file_path%.m4a}_final.m4a" "$file_path"
+      fi
+    fi
+    
+    rm -f "$temp_thumb" "$square_thumb"
+  fi
 }
 
 process_files() {
