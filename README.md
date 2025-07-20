@@ -2,16 +2,16 @@
 
 <img src="/icon.png" alt="icon" width="150" height="150">
 
-This script downloads YouTube songs/playlists/albums as high-quality M4A files with embedded metadata and album art. It also cleans up filenames by removing artist names, "FT", and unnecessary words like "(Official Video)" or "(Audio)".
+This script downloads YouTube songs/playlists/albums as high-quality M4A files with embedded metadata and square album art. It also cleans up filenames by removing artist names and unnecessary words like "(Official Video)" or "(Audio)".
 
 ## 🙋 Why not MP3?
 
-M4A (AAC) is a more modern audio format than MP3, offering better sound quality at lower bitrates. It means that you can get the same audio quality as MP3 but with smaller file sizes. This is especially useful for music, where you want to maintain quality while saving space.
+M4A (AAC) is a more modern audio format than MP3, offering better sound quality at lower bitrates. Also is the native format for Youtube Music and other streaming services. It means that you can get the same audio quality as MP3 but with smaller file sizes. This is especially useful for music, where you want to maintain quality while saving space.
 
 ## 🎵 Features
 
 ✅ **Downloads high-quality M4A (AAC)**  
-✅ **Embeds album art & metadata**  
+✅ **Embeds square album art & metadata**  
 ✅ **Cleans filenames & metadata**  
 ✅ **Removes artist name & extra tags**  
 ✅ **Automatically fetches login cookies**
