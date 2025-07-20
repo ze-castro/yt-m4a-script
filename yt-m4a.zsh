@@ -80,6 +80,11 @@ get_youtube_url() {
 
 download_audio() {
   local url=$1
+  local music_dir="$MUSIC_DIR/%(playlist_index)02d. %(title)s.%(ext)s"
+
+  if [[ "$SANITIZATION_MODE" == "hard" ]]; then
+    music_dir="$MUSIC_DIR/%(title)s.%(ext)s"
+  fi
 
   mkdir -p "$MUSIC_DIR"
   yt-dlp -x --audio-format aac \
@@ -88,7 +93,7 @@ download_audio() {
     --embed-metadata \
     --add-metadata \
     --cookies $COOKIES_FILE \
-    -o "$MUSIC_DIR/%(playlist_index)02d. %(title)s.%(ext)s" \
+    -o "$music_dir" \
     "$url"
     
   echo "Download complete!"
