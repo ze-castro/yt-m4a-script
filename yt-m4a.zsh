@@ -1,10 +1,20 @@
 #!/bin/zsh
 
 # CONFIGURATION
-BASE_DIR="$HOME/Downloads"
-MUSIC_DIR="$BASE_DIR/music"
+# Directory to save downloaded music
+MUSIC_DIR="$HOME/Downloads/music"
+
+# Your preferred browser (e.g., chrome, firefox, safari)
 BROWSER="safari"
-COOKIES_FILE="youtube.cookies.txt"
+
+# Location to store cookies
+COOKIES_FILE="$HOME/Downloads/youtube.cookies.txt"
+
+# Music Quality (0 = best, 10 = worst)
+MUSIC_QUALITY=0
+
+# Global variable for sanitization mode
+SANITIZATION_MODE=""
 
 # FUNCTIONS
 check_dependencies() {
@@ -31,6 +41,26 @@ get_browser_cookies() {
   echo "Successfully retrieved cookies from $BROWSER"
 }
 
+get_download_type() {
+  echo -n "Are you downloading unformatted audio? (y/n): "
+  read download_type
+  
+  case $download_type in
+    (y|Y|yes|Yes)
+      SANITIZATION_MODE="hard"
+      echo "Unformatted audio mode selected - using hard sanitization"
+      ;;
+    (n|N|no|No)
+      SANITIZATION_MODE="soft"
+      echo "Video mode selected - using soft sanitization"
+      ;;
+    (*)
+      echo "Invalid choice. Defaulting to hard sanitization"
+      SANITIZATION_MODE="hard"
+      ;;
+  esac
+}
+
 get_youtube_url() {
   echo -n "Enter YouTube Playlist or Song URL (or 'q' to quit): "
   read url
@@ -53,13 +83,12 @@ download_audio() {
 
   mkdir -p "$MUSIC_DIR"
   yt-dlp -x --audio-format aac \
-    --audio-quality 0 \
+    --audio-quality $MUSIC_QUALITY \
     --embed-thumbnail \
     --embed-metadata \
     --add-metadata \
     --cookies $COOKIES_FILE \
-    --metadata-from-title "%(.title)s" \
-    -o "$MUSIC_DIR/%(title)s.%(ext)s" \
+    -o "$MUSIC_DIR/%(playlist_index)02d. %(title)s.%(ext)s" \
     "$url"
     
   echo "Download complete!"
@@ -67,25 +96,18 @@ download_audio() {
 
 sanitize_filename() {
   local original_filename=$1
-  local file_path=$2
-  
-  local clean_filename=$(echo "$original_filename" | sed -E 's/\([^)]*\)//g')
-  clean_filename=$(echo "$clean_filename" | sed -E 's/\[[^]]*\]//g')
+
+  local clean_filename=$(echo "$original_filename" | sed -E 's/\[[^]]*\]//g')
   clean_filename=$(echo "$clean_filename" | sed -E $'s/[|｜/].*$//')
   clean_filename=$(echo "$clean_filename" | sed -E 's/^[^-]+ - //g')
+
+  if [[ "$SANITIZATION_MODE" == "hard" ]]; then
+    clean_filename=$(echo "$clean_filename" | sed -E 's/\([^)]*\)//g')
+  fi
+  
   clean_filename=$(echo "$clean_filename" | tr -s ' ' | sed -E 's/^ +| +$//g')
   
-  local potential_new_file="${file_path%/*}/${clean_filename}.m4a"
-  
-  if [ -f "$potential_new_file" ] && [ "$file_path" != "$potential_new_file" ]; then
-    local preserved_filename=$(echo "$original_filename" | sed -E 's/\[[^]]*\]//g')
-    preserved_filename=$(echo "$preserved_filename" | sed -E $'s/[|｜/].*$//')
-    preserved_filename=$(echo "$preserved_filename" | sed -E 's/^[^-]+ - //g')
-    preserved_filename=$(echo "$preserved_filename" | tr -s ' ' | sed -E 's/^ +| +$//g')
-    echo "${preserved_filename}"
-  else
-    echo "${clean_filename}"
-  fi
+  echo "${clean_filename}"
 }
 
 update_metadata() {
@@ -137,6 +159,7 @@ cleanup() {
 # MAIN
 check_dependencies
 get_browser_cookies
+get_download_type
 
 while true; do
   if ! get_youtube_url; then

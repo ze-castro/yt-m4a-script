@@ -2,7 +2,7 @@
 
 <img src="/icon.png" alt="icon" width="150" height="150">
 
-This script downloads YouTube songs/playlists as high-quality M4A files with embedded metadata and album art. It also cleans up filenames by removing artist names, "FT", and unnecessary words like "(Official Video)" or "(Audio)".
+This script downloads YouTube songs/playlists/albums as high-quality M4A files with embedded metadata and album art. It also cleans up filenames by removing artist names, "FT", and unnecessary words like "(Official Video)" or "(Audio)".
 
 ## 🙋 Why not MP3?
 
@@ -53,7 +53,36 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 4. When prompted, enter the **YouTube video or playlist URL** when prompted.
 5. The M4A files will be saved in `~/Downloads/music/`.
 
-**NOTE**: I recommend donwloading from `music.youtube.com` as it often has the correct metadata and album art.
+**NOTE**: I recommend downloading from `music.youtube.com` as it often has the correct metadata and album art.
+
+## 🎚 Changing Audio Quality
+
+The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command:
+
+```zsh
+MUSIC_QUALITY=0
+```
+
+```zsh
+MUSIC_QUALITY=5
+```
+
+```zsh
+MUSIC_QUALITY=9
+```
+
+- **For highest quality (default):**
+  ```zsh
+  MUSIC_QUALITY=0
+  ```
+- **For medium quality (e.g., 128kbps):**
+  ```zsh
+  MUSIC_QUALITY=5
+  ```
+- **For lower quality (e.g., 64kbps):**
+  ```zsh
+  MUSIC_QUALITY=9
+  ```
 
 ## 👾 Extra (MacOS only)
 
@@ -68,22 +97,5 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 2. Drag and drop the .icns image into the top left corner of the **Get Info** window.
 3. Close the **Get Info** window.
 4. Now, you can double-click the `.command` file to run the script.
-
-## 🎚 Changing Audio Quality
-
-The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command:
-
-- **For highest quality (default):**
-  ```zsh
-  yt-dlp -x --audio-format aac --audio-quality 0
-  ```
-- **For medium quality (e.g., 128kbps):**
-  ```zsh
-  yt-dlp -x --audio-format aac --audio-quality 5
-  ```
-- **For lower quality (e.g., 64kbps):**
-  ```zsh
-  yt-dlp -x --audio-format aac --audio-quality 9
-  ```
 
 Enjoy your music! 🎶
