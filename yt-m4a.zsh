@@ -120,9 +120,16 @@ update_metadata() {
   local clean_artist=$2
   local sanitized_title=${3%.m4a}
 
+  local track_number=""
+  local clean_title=$(echo "$sanitized_title" | sed -E 's/^[0-9]{1,2}\. //g')
+  if [[ "$sanitized_title" =~ ^([0-9]{1,2})\. ]]; then
+    local track_number="${match[1]}"
+  fi
+
   ffmpeg -i "$file_path" \
     -metadata artist="$clean_artist" \
-    -metadata title="$sanitized_title" \
+    -metadata title="$clean_title" \
+    -metadata track="$track_number" \
     -codec copy "${file_path%.m4a}_temp.m4a"
   
   mv "${file_path%.m4a}_temp.m4a" "$file_path"
