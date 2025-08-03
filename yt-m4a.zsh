@@ -119,6 +119,8 @@ update_metadata() {
   local file_path=$1
   local clean_artist=$2
   local sanitized_title=${3%.m4a}
+  local album=$4
+  local year=$5
 
   local track_number=""
   local clean_title=$(echo "$sanitized_title" | sed -E 's/^[0-9]{1,2}\. //g')
@@ -130,6 +132,8 @@ update_metadata() {
     -metadata artist="$clean_artist" \
     -metadata title="$clean_title" \
     -metadata track="$track_number" \
+    -metadata album="$album" \
+    -metadata date="$year" \
     -codec copy "${file_path%.m4a}_temp.m4a"
   
   mv "${file_path%.m4a}_temp.m4a" "$file_path"
@@ -171,10 +175,18 @@ process_thumbnail() {
 }
 
 process_files() {
+  local year=""
+  for file in "$MUSIC_DIR/"*.m4a; do
+      [ -f "$file" ] || continue
+      year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
+      break
+  done
+  
   for file in "$MUSIC_DIR/"*.m4a; do
     [ -f "$file" ] || continue
 
     local artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
+    local album=$(ffprobe -v quiet -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$file")
     
     if [[ -n "$artist" ]]; then
       local clean_artist=$(echo "$artist" | sed -E 's/[,&;].*//')
@@ -188,7 +200,7 @@ process_files() {
       mv "$file" "$new_file"
       echo "Sanitized filename: $file -> $new_file"
 
-      update_metadata "$new_file" "$clean_artist" "$sanitized_filename"
+      update_metadata "$new_file" "$clean_artist" "$sanitized_filename" "$album" "$year"
     else
       echo "Error: Failed to extract artist metadata for $file. Skipping..."
     fi
