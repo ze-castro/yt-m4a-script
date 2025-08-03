@@ -68,10 +68,7 @@ The script downloads the **best available** audio quality by default. To specify
   ```zsh
   MUSIC_QUALITY=5 # 128 kbps
   ```
-- **For lower quality (e.g., 64kbps):**
-  ```zsh
-  MUSIC_QUALITY=10 # 32 kbps
-  ```
+  I do not recommend using lower quality than `128 kbps` as it may result in poor audio quality.
 
 ## 👾 Extra (MacOS only)
 
