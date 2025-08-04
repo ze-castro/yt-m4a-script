@@ -2,7 +2,8 @@
 
 # CONFIGURATION
 # Directory to save downloaded music
-MUSIC_DIR="$HOME/Downloads/music"
+MAIN_DIR="$HOME/Downloads"
+MUSIC_DIR="$MAIN_DIR/music"
 
 # Your preferred browser (e.g., chrome, firefox, safari)
 BROWSER="safari"
@@ -182,11 +183,12 @@ process_files() {
       break
   done
   
+  local album=""
   for file in "$MUSIC_DIR/"*.m4a; do
     [ -f "$file" ] || continue
 
     local artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
-    local album=$(ffprobe -v quiet -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$file")
+    album=$(ffprobe -v quiet -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$file")
     
     if [[ -n "$artist" ]]; then
       local clean_artist=$(echo "$artist" | sed -E 's/[,&;].*//')
@@ -205,8 +207,12 @@ process_files() {
       echo "Error: Failed to extract artist metadata for $file. Skipping..."
     fi
   done
-  
-  echo "Sanitization complete!"
+
+  if [[ -n "$album" ]]; then
+    mkdir -p "$MAIN_DIR/$album"
+    mv "$MUSIC_DIR"/* "$MAIN_DIR/$album/"
+    rm -r "$MUSIC_DIR"
+  fi
 }
 
 cleanup() {
