@@ -52,7 +52,8 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
    ./yt-m4a.zsh
    ```
 4. When prompted, enter the **YouTube video or playlist URL** when prompted.
-5. The M4A files will be saved in `~/Downloads/music/`.
+5. The M4A files will be saved in `~/Downloads/music/` when downloading unformatted audio.
+   If you download a playlist or album, it will be saved in `~/Downloads/album_name/`.
 
 **NOTE**: I recommend downloading from `music.youtube.com` as it often has the correct metadata and album art.
 

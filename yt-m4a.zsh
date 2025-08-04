@@ -1,84 +1,132 @@
 #!/bin/zsh
 
 # CONFIGURATION
-# Directory to save downloaded music
+## DIRECTORIES
+### Main directory for downloads
 MAIN_DIR="$HOME/Downloads"
+### Directory for music files
 MUSIC_DIR="$MAIN_DIR/music"
+### Location to store cookies
+COOKIES_FILE="$MAIN_DIR/youtube.cookies.txt"
 
-# Your preferred browser (e.g., chrome, firefox, safari)
+## BROWSER
+### Your preferred browser (e.g., chrome, firefox, safari)
 BROWSER="safari"
 
-# Location to store cookies
-COOKIES_FILE="$HOME/Downloads/youtube.cookies.txt"
-
-# Music Quality (0 = best, 10 = worst)
+## Music Quality
+### (0 = best, 10 = worst)
 MUSIC_QUALITY=0
 
-# Global variable for sanitization mode
+## SANITIZATION
+### Global sanitization state
 SANITIZATION_MODE=""
+### Sanitization modes
+readonly SANITIZATION_HARD="hard"
+readonly SANITIZATION_SOFT="soft"
 
-# FUNCTIONS
-check_dependencies() {
-  if ! command -v yt-dlp &> /dev/null; then
-    echo "Error: yt-dlp is not installed! Please install yt-dlp before running this script."
-    exit 1
-  fi
-  
-  if ! command -v ffmpeg &> /dev/null; then
-    echo "Error: ffmpeg is not installed! Please install ffmpeg before running this script."
-    exit 1
-  fi
+###############################################################################
+
+# LOGGING
+log_info() {
+  echo "[INFO] $*" >&2
+}
+log_error() {
+  echo "[ERROR] $*" >&2
+}
+log_warning() {
+  echo "[WARNING] $*" >&2
+}
+log_success() {
+  echo "[SUCCESS] $*" >&2
 }
 
+# ERROR HANDLING
+error_exit() {
+    log_error "$1"
+    exit "${2:-1}"
+}
+
+###############################################################################
+
+# DEPENDENCIES
+## Default message for missing dependencies
+check_command() {
+    local cmd=$1
+    local install_msg=$2
+    
+    if ! command -v "$cmd" &> /dev/null; then
+        error_exit "$cmd is not installed! $install_msg"
+    fi
+}
+# Check if yt-dlp and ffmpeg are installed
+check_dependencies() {
+  check_command "yt-dlp" "Install it from: https://github.com/yt-dlp/yt-dlp"
+  check_command "ffmpeg" "Install it from: https://ffmpeg.org/download.html"
+}
+
+###############################################################################
+
+# COOKIE HANDLING
+## Get cookies from the specified browser
 get_browser_cookies() {
-  echo "Getting cookies from $BROWSER browser..."
+  log_info "Getting cookies from $BROWSER browser..."
   yt-dlp --cookies-from-browser $BROWSER --cookies "$COOKIES_FILE" --flat-playlist --quiet --no-warnings "https://www.youtube.com"
 
   if [ ! -f $COOKIES_FILE ]; then
-    echo "Error: Failed to get cookies! Make sure you are logged into YouTube in your browser."
-    exit 1
+    error_exit "Failed to retrieve cookies from $BROWSER. Please ensure you have the correct browser name configured and are logged in to YouTube."
   fi
-  
-  echo "Successfully retrieved cookies from $BROWSER"
+
+  log_success "Successfully retrieved cookies from $BROWSER"
 }
 
+###############################################################################
+
+# DOWNLOAD HANDLING
+## Get the download type (unformatted audio or playlist/album)
 get_download_type() {
-  echo -n "Are you downloading unformatted audio? (y/n): "
-  read download_type
-  
-  case $download_type in
-    (y|Y|yes|Yes)
-      SANITIZATION_MODE="hard"
-      echo "Unformatted audio mode selected - using hard sanitization"
-      ;;
-    (n|N|no|No)
-      SANITIZATION_MODE="soft"
-      echo "Video mode selected - using soft sanitization"
-      ;;
-    (*)
-      echo "Invalid choice. Defaulting to hard sanitization"
-      SANITIZATION_MODE="hard"
-      ;;
-  esac
+  while [[ "$SANITIZATION_MODE" != "$SANITIZATION_HARD" && "$SANITIZATION_MODE" != "$SANITIZATION_SOFT" ]]; do
+    echo -n "Are you downloading unformatted audio? (y/n): "
+    read download_type
+
+    case $download_type in
+      (y|Y|yes|Yes)
+        SANITIZATION_MODE=$SANITIZATION_HARD
+        log_info "Downloading Unformatted Audio"
+        ;;
+      (n|N|no|No)
+        SANITIZATION_MODE=$SANITIZATION_SOFT
+        log_info "Downloading Albums or Playlists"
+        ;;
+      (*)
+        log_warning "Invalid choice. Try again."
+        ;;
+    esac
+  done
 }
 
+###############################################################################
+
+# URL HANDLING
+## Get the YouTube URL from the user
 get_youtube_url() {
-  echo -n "Enter YouTube Playlist or Song URL (or 'q' to quit): "
-  read url
-
-  if [[ "$url" == "q" ]]; then
-    return 1
-  fi
-  
-  if [[ -z "$url" ]]; then
-    echo "Error: Invalid input. You must provide a song or playlist URL."
-    return 1
-  fi
-
-  echo "Downloading from URL: $url"
-  return 0
+  while true; do
+      echo -n "Enter YouTube Playlist or Song URL (or 'q' to quit): "
+      read url
+      
+      if [[ "$url" == "q" ]]; then
+          return 1
+      fi
+      
+      if [[ -n "$url" ]]; then
+          log_info "Downloading from URL: $url"
+          return 0
+      fi
+      
+      echo "Please enter a valid URL or 'q' to quit."
+  done
 }
 
+## Download audio from the provided URL
 download_audio() {
   local url=$1
   local music_dir="$MUSIC_DIR/%(playlist_index)02d. %(title)s.%(ext)s"
@@ -96,10 +144,12 @@ download_audio() {
     --cookies $COOKIES_FILE \
     -o "$music_dir" \
     "$url"
-    
-  echo "Download complete!"
 }
 
+###############################################################################
+
+# FILE HANDLING
+## Sanitize filenames
 sanitize_filename() {
   local original_filename=$1
 
@@ -112,10 +162,10 @@ sanitize_filename() {
   fi
 
   clean_filename=$(echo "$clean_filename" | tr -s ' ' | sed -E 's/^ +| +$//g')
-  
   echo "${clean_filename}"
 }
 
+## Update metadata for the downloaded file
 update_metadata() {
   local file_path=$1
   local clean_artist=$2
@@ -141,9 +191,10 @@ update_metadata() {
 
   process_thumbnail "$file_path"
 
-  echo "Updated metadata and artwork for: $file_path"
+  log_success "Updated metadata for: $file_path"
 }
 
+## Process thumbnail and embed it into the audio file
 process_thumbnail() {
   local file_path=$1
   local temp_thumb="${file_path%.m4a}_thumb.jpg"
@@ -173,8 +224,11 @@ process_thumbnail() {
     
     rm -f "$temp_thumb" "$square_thumb"
   fi
+  log_success "Processed thumbnail for: $file_path"
 }
 
+## Process files after downloading
+### This function renames files, updates metadata, and organizes them into albums if applicable
 process_files() {
   local year=""
   for file in "$MUSIC_DIR/"*.m4a; do
@@ -193,34 +247,40 @@ process_files() {
     if [[ -n "$artist" ]]; then
       local clean_artist=$(echo "$artist" | sed -E 's/[,&;].*//')
       local original_filename=$(basename "$file" .m4a)
-      echo "Original: $original_filename"
 
       local sanitized_filename=$(sanitize_filename "$original_filename" "$file")
       sanitized_filename="${sanitized_filename}.m4a"
       local new_file="${file%/*}/$sanitized_filename"
 
       mv "$file" "$new_file"
-      echo "Sanitized filename: $file -> $new_file"
+      log_info "Sanitized filename: $file -> $new_file"
 
       update_metadata "$new_file" "$clean_artist" "$sanitized_filename" "$album" "$year"
     else
-      echo "Error: Failed to extract artist metadata for $file. Skipping..."
+      log_error "Failed to extract artist metadata for $file. Skipping..."
     fi
   done
 
-  if [[ -n "$album" ]]; then
+  if [[ -n "$album" && "$SANITIZATION_MODE" == "soft" ]]; then
     mkdir -p "$MAIN_DIR/$album"
     mv "$MUSIC_DIR"/* "$MAIN_DIR/$album/"
     rm -r "$MUSIC_DIR"
   fi
 }
 
+###############################################################################
+
+# CLEANUP
+## Remove cookies after processing
 cleanup() {
   rm -f $COOKIES_FILE
-  echo "All tasks completed successfully!"
+  log_success "All tasks completed successfully!"
 }
 
+###############################################################################
+
 # MAIN
+## Run the script
 check_dependencies
 get_browser_cookies
 get_download_type
