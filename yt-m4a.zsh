@@ -137,6 +137,10 @@ download_audio() {
 
   mkdir -p "$MUSIC_DIR"
   yt-dlp -x --audio-format aac \
+    --extractor-args "youtube:player_client=tv_embedded" \
+    --sleep-interval 3 \
+    --max-sleep-interval 8 \
+    --sleep-requests 1 \
     --audio-quality $MUSIC_QUALITY \
     --embed-thumbnail \
     --embed-metadata \
@@ -144,6 +148,9 @@ download_audio() {
     --cookies $COOKIES_FILE \
     -o "$music_dir" \
     "$url"
+
+  local file_path=$(ls -1t "$MUSIC_DIR" | head -n 1)
+  log_info "Bitrate: $(ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 "$MUSIC_DIR/$file_path")"
 }
 
 ###############################################################################
@@ -178,15 +185,15 @@ update_metadata() {
   if [[ "$sanitized_title" =~ ^([0-9]{1,2})\. ]]; then
     local track_number="${match[1]}"
   fi
-
+  
   ffmpeg -i "$file_path" \
     -metadata artist="$clean_artist" \
     -metadata title="$clean_title" \
     -metadata track="$track_number" \
     -metadata album="$album" \
     -metadata date="$year" \
-    -codec copy "${file_path%.m4a}_temp.m4a"
-  
+    -codec copy "${file_path%.m4a}_temp.m4a" -v quiet -y 2>/dev/null
+
   mv "${file_path%.m4a}_temp.m4a" "$file_path"
 
   process_thumbnail "$file_path"
@@ -240,10 +247,9 @@ process_files() {
   local album=""
   for file in "$MUSIC_DIR/"*.m4a; do
     [ -f "$file" ] || continue
-
     local artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
     album=$(ffprobe -v quiet -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$file")
-    
+
     if [[ -n "$artist" ]]; then
       local clean_artist=$(echo "$artist" | sed -E 's/[,&;].*//')
       local original_filename=$(basename "$file" .m4a)
@@ -254,7 +260,6 @@ process_files() {
 
       mv "$file" "$new_file"
       log_info "Sanitized filename: $file -> $new_file"
-
       update_metadata "$new_file" "$clean_artist" "$sanitized_filename" "$album" "$year"
     else
       log_error "Failed to extract artist metadata for $file. Skipping..."
