@@ -131,7 +131,7 @@ download_audio() {
   local url=$1
   local music_dir="$MUSIC_DIR/%(playlist_index)02d. %(title)s.%(ext)s"
 
-  if [[ "$SANITIZATION_MODE" == "hard" ]]; then
+  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_HARD" ]]; then
     music_dir="$MUSIC_DIR/%(title)s.%(ext)s"
   fi
 
@@ -171,7 +171,7 @@ sanitize_filename() {
   clean_filename=$(echo "$clean_filename" | sed -E $'s/[|｜/].*$//')
   clean_filename=$(echo "$clean_filename" | sed -E 's/^[^-]+ - //g')
 
-  if [[ "$SANITIZATION_MODE" == "hard" ]]; then
+  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_HARD" ]]; then
     clean_filename=$(echo "$clean_filename" | sed -E 's/\([^)]*\)//g')
   fi
 
@@ -245,17 +245,22 @@ process_thumbnail() {
 ### This function renames files, updates metadata, and organizes them into albums if applicable
 process_files() {
   local year=""
-  for file in "$MUSIC_DIR/"*.m4a; do
-      [ -f "$file" ] || continue
-      year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
-      break
-  done
+  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_SOFT" ]]; then
+    for file in "$MUSIC_DIR/"*.m4a; do
+        [ -f "$file" ] || continue
+        year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
+        break
+    done
+  fi
   
   local album=""
   for file in "$MUSIC_DIR/"*.m4a; do
     [ -f "$file" ] || continue
     local artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
     album=$(ffprobe -v quiet -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$file")
+    if [[ "$SANITIZATION_MODE" == "$SANITIZATION_HARD" ]]; then
+      year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
+    fi
 
     if [[ -n "$artist" ]]; then
       local clean_artist=$(echo "$artist" | sed -E 's/[,&;].*//')
@@ -273,7 +278,7 @@ process_files() {
     fi
   done
 
-  if [[ -n "$album" && "$SANITIZATION_MODE" == "soft" ]]; then
+  if [[ -n "$album" && "$SANITIZATION_MODE" == "$SANITIZATION_SOFT" ]]; then
     mkdir -p "$MAIN_DIR/$album"
     mv "$MUSIC_DIR"/* "$MAIN_DIR/$album/"
     rm -r "$MUSIC_DIR"
