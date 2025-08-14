@@ -149,8 +149,15 @@ download_audio() {
     -o "$music_dir" \
     "$url"
 
-  local file_path=$(ls -1t "$MUSIC_DIR" | head -n 1)
-  log_info "Bitrate: $(ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 "$MUSIC_DIR/$file_path")"
+  for file_path in "$MUSIC_DIR"/*.m4a; do
+    if [[ -f "$file_path" ]]; then
+      local title=$(basename "$file_path" .m4a)
+      local bitrate=$(ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 "$file_path" 2>/dev/null)
+      if [[ -n "$bitrate" ]]; then
+        log_info "$title - $((bitrate / 1000)) kbps"
+      fi
+    fi
+  done
 }
 
 ###############################################################################
