@@ -10,11 +10,11 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 
 ## 🎵 Features
 
-✅ **Downloads high-quality (256 kbps) M4A files**  
-✅ **Automatically fetches metadata**
-✅ **Embeds square album art**
+✅ **Downloads high-quality (+256 kbps) M4A files**  
+✅ **Automatically fetches metadata**  
+✅ **Embeds square album art**  
 ✅ **Cleans up filenames**  
-✅ **Supports playlists and albums**
+✅ **Supports playlists and albums**  
 ✅ **Automatically fetches login cookies**
 
 ## 📌 Requirements
