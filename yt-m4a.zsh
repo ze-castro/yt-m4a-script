@@ -82,20 +82,20 @@ get_browser_cookies() {
 ###############################################################################
 
 # DOWNLOAD HANDLING
-## Get the download type (unformatted audio or playlist/album)
+## Get the download type (unformatted audio or album)
 get_download_type() {
   while [[ "$SANITIZATION_MODE" != "$SANITIZATION_HARD" && "$SANITIZATION_MODE" != "$SANITIZATION_SOFT" ]]; do
-    echo -n "Are you downloading unformatted audio? (y/n): "
+    echo -n "Are you downloading an album? (y/n): "
     read download_type
 
     case $download_type in
       (y|Y|yes|Yes)
-        SANITIZATION_MODE=$SANITIZATION_HARD
-        log_info "Downloading Unformatted Audio"
+        SANITIZATION_MODE=$SANITIZATION_SOFT
+        log_info "Album Mode"
         ;;
       (n|N|no|No)
-        SANITIZATION_MODE=$SANITIZATION_SOFT
-        log_info "Downloading Albums or Playlists"
+        SANITIZATION_MODE=$SANITIZATION_HARD
+        log_info "Unformatted Audio Mode"
         ;;
       (*)
         log_warning "Invalid choice. Try again."
@@ -110,7 +110,7 @@ get_download_type() {
 ## Get the YouTube URL from the user
 get_youtube_url() {
   while true; do
-      echo -n "Enter YouTube Playlist or Song URL (or 'q' to quit): "
+      echo -n "Enter YouTube Playlist, Album, or Song URL (or 'q' to quit): "
       read url
       
       if [[ "$url" == "q" ]]; then
@@ -245,20 +245,34 @@ process_thumbnail() {
 ### This function renames files, updates metadata, and organizes them into albums if applicable
 process_files() {
   local year=""
+  local album=""
+  local artist=""
+  local artist_array=()
   if [[ "$SANITIZATION_MODE" == "$SANITIZATION_SOFT" ]]; then
     for file in "$MUSIC_DIR/"*.m4a; do
-        [ -f "$file" ] || continue
-        year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
-        break
+      [ -f "$file" ] || continue
+      year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
+      break
     done
+    for file in "$MUSIC_DIR/"*.m4a; do
+      [ -f "$file" ] || continue
+      artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
+      if [[ -n "$artist" ]]; then
+        artist_array+=("$artist")
+      fi
+    done
+    unique_artists=("${(@f)$(printf "%s\n" "${artist_array[@]}" | sort -u)}")
+    if [[ ${#unique_artists[@]} -eq 1 ]]; then
+      artist="${unique_artists[1]}"
+    else
+      artist="Various Artists"
+    fi
   fi
-  
-  local album=""
   for file in "$MUSIC_DIR/"*.m4a; do
     [ -f "$file" ] || continue
-    local artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
     album=$(ffprobe -v quiet -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$file")
     if [[ "$SANITIZATION_MODE" == "$SANITIZATION_HARD" ]]; then
+      artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
       year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
     fi
 

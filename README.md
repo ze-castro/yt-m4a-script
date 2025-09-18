@@ -2,7 +2,7 @@
 
 <img src="/icon.png" alt="icon" width="150" height="150">
 
-This script downloads YouTube songs/playlists/albums as high-quality M4A files with embedded metadata and square album art. It also cleans up filenames by removing artist names and unnecessary words like "(Official Video)" or "(Audio)".
+This command line tool downloads YouTube songs/playlists/albums as high-quality M4A files with embedded metadata and square album art. It also cleans up filenames by removing artist names and unnecessary words like "(Official Video)" or "(Audio)".
 
 ## 🙋 Why not MP3?
 
