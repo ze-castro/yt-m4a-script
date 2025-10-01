@@ -71,8 +71,14 @@ The script downloads the **best available** audio quality by default. To specify
   ```
   I do not recommend using lower quality than `128 kbps` as it may result in poor audio quality.
 
-## 👾 Extra (MacOS only)
+## 🚨 Known Errors
+### 1. Signature Extraction Failure
+```zsh
+WARNING: [youtube] PIuAFrLeXfY: Signature extraction failed: Some formats may be missing.
+```
+*Solution*: Update `yt-dlp` to the latest version with `brew upgrade yt-dlp`.
 
+## 👾 Extra (MacOS only)
 ### To double click to open the script:
 
 1. Right-click the script and select **Rename**.
