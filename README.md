@@ -1,4 +1,4 @@
-# YouTube Downloader
+# Music Downloader for MacOS
 
 <img src="/icon.png" alt="icon" width="120" height="120">
 
