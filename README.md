@@ -19,8 +19,8 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 
 ## 📌 Requirements
 
-This script is only available for MacOS.
-I use `brew` to download `yt-dlp` to `ffmpeg`, feel free to use another package manager.
+This script is only available for **MacOS**.
+I use `brew` to download `yt-dlp` to `ffmpeg`, feel free to use another **package manager**.
 
 1. Install **yt-dlp**:
 
