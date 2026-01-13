@@ -1,6 +1,6 @@
 # YouTube Downloader
 
-<img src="/icon.png" alt="icon" width="150" height="150">
+<img src="/icon.png" alt="icon" width="120" height="120">
 
 This command line tool downloads YouTube songs/playlists/albums as high-quality M4A files with embedded metadata and square album art. It also cleans up filenames by removing artist names and unnecessary words like "(Official Video)" or "(Audio)".
 
@@ -19,18 +19,21 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 
 ## 📌 Requirements
 
+This script is only available for MacOS.
+I use `brew` to download `yt-dlp` to `ffmpeg`, feel free to use another package manager.
+
 1. Install **yt-dlp**:
+
    ```sh
-   brew install yt-dlp  # macOS
-   sudo apt install yt-dlp  # Linux (Debian/Ubuntu)
-   choco install yt-dlp  # Windows (via Chocolatey)
+   brew install yt-dlp
    ```
+
 2. Install **ffmpeg**:
+
    ```zsh
-   brew install ffmpeg  # macOS
-   sudo apt install ffmpeg  # Linux
-   choco install ffmpeg  # Windows
+   brew install ffmpeg
    ```
+
 3. Ensure **Firefox**, **Chrome** or **Safari** is installed (for automatic YouTube login cookies).
 
 ## 🚀 How to Use
@@ -44,13 +47,17 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
    Supported browsers are: brave, chrome, chromium, edge, firefox, opera, safari, vivaldi, whale.
 
 2. Save the script as `yt-m4a.zsh` and give it execute permissions (you can also give 'Full Disk Access' to the terminal app if you want to run it from anywhere):
+
    ```zsh
    chmod +x yt-m4a.zsh
    ```
+
 3. Run the script:
+
    ```zsh
    ./yt-m4a.zsh
    ```
+
 4. When prompted, enter the **YouTube video or playlist URL** when prompted.
 5. The M4A files will be saved in `~/Downloads/music/` when downloading unformatted audio.
    If you download a playlist or album, it will be saved in `~/Downloads/album_name/`.
@@ -62,29 +69,37 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 The script downloads the **best available** audio quality by default. To specify a different quality, modify the `yt-dlp` command:
 
 - **For highest quality (default):**
+
   ```zsh
-  MUSIC_QUALITY=0 # 256 kbps
+  MUSIC_QUALITY=0 # +256 kbps
   ```
+
 - **For medium quality (e.g., 128kbps):**
+
   ```zsh
   MUSIC_QUALITY=5 # 128 kbps
   ```
+
   I do not recommend using lower quality than `128 kbps` as it may result in poor audio quality.
 
 ## 🚨 Known Errors
+
 ### 1. Signature Extraction Failure
+
 ```zsh
 WARNING: [youtube] PIuAFrLeXfY: Signature extraction failed: Some formats may be missing.
 ```
+
 *Solution*: Update `yt-dlp` to the latest version with `brew upgrade yt-dlp`.
 
 ## 👾 Extra (MacOS only)
-### To double click to open the script:
+
+### To double click to open the script
 
 1. Right-click the script and select **Rename**.
 2. Change the file extension from `.zsh` to `.command`.
 
-### To add an icon to the .command file:
+### To add an icon to the .command file
 
 1. Right-click the `.command` file and select **Get Info**.
 2. Drag and drop the .icns image into the top left corner of the **Get Info** window.
