@@ -10,7 +10,8 @@ Initial public release of the script. Provides the core functionality to downloa
 - Includes album art
 
 ### Limitations
-- A single artist per song
+- The artist is always the first artist in the artist metadata field.
+- Only supports zsh (Z shell).
 
 ### Notes
 - This is the baseline release. All future changes will be documented relative to this version.
