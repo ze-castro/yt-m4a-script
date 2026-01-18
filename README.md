@@ -11,21 +11,29 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 ## 🎵 Features
 
 ✅ **Downloads high-quality (+256 kbps) M4A files**  
-✅ **Automatically fetches metadata**  
+✅ **Automatically fetches metadata** 
+✅ **Original album track order** 
 ✅ **Embeds square album art**  
 ✅ **Cleans up filenames**  
 ✅ **Supports playlists and albums**  
 ✅ **Automatically fetches login cookies**
+✅ **Avoids rate limiting**
+
+## ⚠️ Disclaimer
+
+This script is intended for **personal use only**. Downloading copyrighted material **without permission** may violate copyright laws. Ensure you have the right to download and use the content before proceeding.
+
+This script is provided "as is" **without warranty** of any kind. I am **not responsible** for any damages or **legal issues** that may arise from its use.
 
 ## 📌 Requirements
 
 This script is only available for **MacOS**.
-I use `brew` to download `yt-dlp` to `ffmpeg`, feel free to use another **package manager**.
+I use `brew` to download `deno`, `ffmpeg` and `yt-dlp`, feel free to use another **package manager**.
 
-1. Install **yt-dlp**:
+1. Install **deno**:
 
-   ```sh
-   brew install yt-dlp
+   ```zsh
+   brew install deno
    ```
 
 2. Install **ffmpeg**:
@@ -34,7 +42,13 @@ I use `brew` to download `yt-dlp` to `ffmpeg`, feel free to use another **packag
    brew install ffmpeg
    ```
 
-3. Ensure **Firefox**, **Chrome** or **Safari** is installed (for automatic YouTube login cookies).
+3. Install **yt-dlp**:
+
+   ```sh
+   brew install yt-dlp
+   ```
+
+4. Ensure **Firefox**, **Chrome** or **Safari** is installed (for automatic YouTube login cookies).
 
 ## 🚀 How to Use
 
@@ -92,7 +106,7 @@ WARNING: [youtube] PIuAFrLeXfY: Signature extraction failed: Some formats may be
 
 *Solution*: Update `yt-dlp` to the latest version with `brew upgrade yt-dlp`.
 
-## 👾 Extra (MacOS only)
+## 👾 Extra
 
 ### To double click to open the script
 

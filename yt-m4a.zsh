@@ -21,8 +21,8 @@ MUSIC_QUALITY=0
 ### Global sanitization state
 SANITIZATION_MODE=""
 ### Sanitization modes
-readonly SANITIZATION_HARD="hard"
-readonly SANITIZATION_SOFT="soft"
+readonly SANITIZATION_ALL="all"
+readonly SANITIZATION_ALBUM="album"
 
 ###############################################################################
 
@@ -84,17 +84,17 @@ get_browser_cookies() {
 # DOWNLOAD HANDLING
 ## Get the download type (unformatted audio or album)
 get_download_type() {
-  while [[ "$SANITIZATION_MODE" != "$SANITIZATION_HARD" && "$SANITIZATION_MODE" != "$SANITIZATION_SOFT" ]]; do
+  while [[ "$SANITIZATION_MODE" != "$SANITIZATION_ALL" && "$SANITIZATION_MODE" != "$SANITIZATION_ALBUM" ]]; do
     echo -n "Are you downloading an album? (y/n): "
     read download_type
 
     case $download_type in
       (y|Y|yes|Yes)
-        SANITIZATION_MODE=$SANITIZATION_SOFT
+        SANITIZATION_MODE=$SANITIZATION_ALBUM
         log_info "Album Mode"
         ;;
       (n|N|no|No)
-        SANITIZATION_MODE=$SANITIZATION_HARD
+        SANITIZATION_MODE=$SANITIZATION_ALL
         log_info "Unformatted Audio Mode"
         ;;
       (*)
@@ -131,7 +131,7 @@ download_audio() {
   local url=$1
   local music_dir="$MUSIC_DIR/%(playlist_index)02d. %(title)s.%(ext)s"
 
-  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_HARD" ]]; then
+  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALL" ]]; then
     music_dir="$MUSIC_DIR/%(title)s.%(ext)s"
   fi
 
@@ -171,7 +171,7 @@ sanitize_filename() {
   clean_filename=$(echo "$clean_filename" | sed -E $'s/[|｜/].*$//')
   clean_filename=$(echo "$clean_filename" | sed -E 's/^[^-]+ - //g')
 
-  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_HARD" ]]; then
+  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALL" ]]; then
     clean_filename=$(echo "$clean_filename" | sed -E 's/\([^)]*\)//g')
   fi
 
@@ -182,20 +182,20 @@ sanitize_filename() {
 ## Update metadata for the downloaded file
 update_metadata() {
   local file_path=$1
-  local clean_artist=$2
+  local artist=$2
   local sanitized_title=${3%.m4a}
   local album=$4
   local year=$5
 
   local track_number=""
-  local clean_title=$(echo "$sanitized_title" | sed -E 's/^[0-9]{1,2}\. //g')
+  local title=$(echo "$sanitized_title" | sed -E 's/^[0-9]{1,2}\. //g')
   if [[ "$sanitized_title" =~ ^([0-9]{1,2})\. ]]; then
     local track_number="${match[1]}"
   fi
   
   ffmpeg -i "$file_path" \
-    -metadata artist="$clean_artist" \
-    -metadata title="$clean_title" \
+    -metadata artist="$artist" \
+    -metadata title="$title" \
     -metadata track="$track_number" \
     -metadata album="$album" \
     -metadata date="$year" \
@@ -248,7 +248,7 @@ process_files() {
   local album=""
   local artist=""
   local artist_array=()
-  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_SOFT" ]]; then
+  if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALBUM" ]]; then
     for file in "$MUSIC_DIR/"*.m4a; do
       [ -f "$file" ] || continue
       year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
@@ -261,17 +261,31 @@ process_files() {
         artist_array+=("$artist")
       fi
     done
-    unique_artists=("${(@f)$(printf "%s\n" "${artist_array[@]}" | sort -u)}")
+    unique_artists=(${(u)artist_array})
     if [[ ${#unique_artists[@]} -eq 1 ]]; then
       artist="${unique_artists[1]}"
     else
-      artist="Various Artists"
+      typeset -A artist_count
+      for artist_name in "${artist_array[@]}"; do
+        [[ -z "$artist_name" ]] && continue
+        (( artist_count["$artist_name"]++ ))
+      done
+      most_common_artist=""
+      max_count=0
+      for artist_item in ${(k)artist_count}; do
+        if (( artist_count[$artist_item] > max_count )); then
+          max_count=${artist_count[$artist_item]}
+          most_common_artist="$artist_item"
+        fi
+      done
+      log_info "Using most common artist: $most_common_artist"
+      artist="$most_common_artist"
     fi
   fi
   for file in "$MUSIC_DIR/"*.m4a; do
     [ -f "$file" ] || continue
     album=$(ffprobe -v quiet -show_entries format_tags=album -of default=noprint_wrappers=1:nokey=1 "$file")
-    if [[ "$SANITIZATION_MODE" == "$SANITIZATION_HARD" ]]; then
+    if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALL" ]]; then
       artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
       year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
     fi
@@ -288,11 +302,19 @@ process_files() {
       log_info "Sanitized filename: $file -> $new_file"
       update_metadata "$new_file" "$clean_artist" "$sanitized_filename" "$album" "$year"
     else
-      log_error "Failed to extract artist metadata for $file. Skipping..."
+      if [[ -z "$artist" ]]; then
+          log_warning "Artist metadata is missing for $file."
+      elif [[ -z "$album" ]]; then
+          log_warning "Album metadata is missing for $file."
+      elif [[ -z "$year" ]]; then
+          log_warning "Year metadata is missing for $file."
+      else 
+          log_warning "Metadata is missing for $file."  
+      fi
     fi
   done
 
-  if [[ -n "$album" && "$SANITIZATION_MODE" == "$SANITIZATION_SOFT" ]]; then
+  if [[ -n "$album" && "$SANITIZATION_MODE" == "$SANITIZATION_ALBUM" ]]; then
     mkdir -p "$MAIN_DIR/$album"
     mv "$MUSIC_DIR"/* "$MAIN_DIR/$album/"
     rm -r "$MUSIC_DIR"
