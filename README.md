@@ -69,7 +69,7 @@ I use `brew` to download `deno`, `ffmpeg` and `yt-dlp`, feel free to use another
 3. Run the script:
 
    ```zsh
-   ./yt-m4a.zsh
+   zsh ./yt-m4a.zsh
    ```
 
 4. When prompted, enter the **YouTube video or playlist URL** when prompted.
