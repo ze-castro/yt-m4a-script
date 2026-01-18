@@ -33,7 +33,7 @@ readonly ALBUM_VARIOUS="various"
 
 # DEBUG MODE
 ### Enable or disable debug mode (true/false)
-DEBUG_MODE="true"
+DEBUG_MODE="false"
 
 ###############################################################################
 
