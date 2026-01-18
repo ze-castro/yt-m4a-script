@@ -17,7 +17,7 @@ M4A (AAC) is a more modern audio format than MP3, offering better sound quality 
 ✅ **Cleans up filenames**
 ✅ **Supports playlists and albums**
 ✅ **Automatically fetches login cookies**
-✅ **Avoids rate limiting** 
+✅ **Avoids rate limiting**
 
 ## ⚠️ Disclaimer
 
@@ -104,7 +104,7 @@ The script downloads the **best available** audio quality by default. To specify
 WARNING: [youtube] PIuAFrLeXfY: Signature extraction failed: Some formats may be missing.
 ```
 
-*Solution*: Update `yt-dlp` to the latest version with `brew upgrade yt-dlp`.
+_Solution_: Update `yt-dlp` to the latest version with `brew upgrade yt-dlp`.
 
 ## 👾 Extra
 
