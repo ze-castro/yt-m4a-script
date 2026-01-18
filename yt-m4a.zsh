@@ -31,6 +31,10 @@ ALBUM_TYPE=""
 readonly ALBUM_SINGLE="single"
 readonly ALBUM_VARIOUS="various"
 
+# DEBUG MODE
+### Enable or disable debug mode (true/false)
+DEBUG_MODE="true"
+
 ###############################################################################
 
 # LOGGING
@@ -45,6 +49,11 @@ log_warning() {
 }
 log_success() {
   echo "[SUCCESS] $*" >&2
+}
+log_debug() {
+  if [[ "$DEBUG_MODE" == "true" ]]; then
+    echo "[DEBUG] $*" >&2
+  fi
 }
 
 # ERROR HANDLING
@@ -188,7 +197,7 @@ download_audio() {
       local title=$(basename "$file_path" .m4a)
       local bitrate=$(ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 "$file_path" 2>/dev/null)
       if [[ -n "$bitrate" ]]; then
-        log_info "$title - $((bitrate / 1000)) kbps"
+        log_debug "$title - $((bitrate / 1000)) kbps"
       fi
     fi
   done
@@ -274,7 +283,7 @@ process_thumbnail() {
     
     rm -f "$temp_thumb" "$square_thumb"
   fi
-  log_success "Processed thumbnail for: $file_path"
+  log_debug "Processed thumbnail for: $file_path"
 }
 
 ## Process files after downloading
@@ -295,7 +304,11 @@ process_files() {
       [ -f "$file" ] || continue
       artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
       if [[ -n "$artist" ]]; then
-        artist_array+=("$artist")
+        artists=("${(@s:,:)artist}")
+        for a in "${artists[@]}"; do
+          log_debug "Artist: ${a## }"
+          artist_array+=("${a## }")
+        done
       fi
     done
     unique_artists=(${(u)artist_array})
@@ -315,7 +328,7 @@ process_files() {
           most_common_artist=$artist_item
         fi
       done
-      log_info "Most common artist on the album: $most_common_artist"
+      log_debug "Most common artist on the album: $most_common_artist"
       if [[ "$ALBUM_TYPE" == "$ALBUM_SINGLE" ]]; then
         artist=$most_common_artist
         album_artist=$most_common_artist
@@ -345,7 +358,7 @@ process_files() {
       local new_file="${file%/*}/$sanitized_filename"
 
       mv "$file" "$new_file"
-      log_info "Sanitized filename: $file -> $new_file"
+      log_debug "Sanitized filename: $file -> $new_file"
       update_metadata "$new_file" "$clean_artist" "$album_artist" "$sanitized_filename" "$album" "$year"
     else
       if [[ -z "$artist" ]]; then
