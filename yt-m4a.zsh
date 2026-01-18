@@ -24,6 +24,13 @@ SANITIZATION_MODE=""
 readonly SANITIZATION_ALL="all"
 readonly SANITIZATION_ALBUM="album"
 
+## ALBUM TYPE
+### Album type state
+ALBUM_TYPE=""
+### Album types
+readonly ALBUM_SINGLE="single"
+readonly ALBUM_VARIOUS="various"
+
 ###############################################################################
 
 # LOGGING
@@ -96,6 +103,33 @@ get_download_type() {
       (n|N|no|No)
         SANITIZATION_MODE=$SANITIZATION_ALL
         log_info "Unformatted Audio Mode"
+        ;;
+      (*)
+        log_warning "Invalid choice. Try again."
+        ;;
+    esac
+  done
+}
+
+###############################################################################
+
+# ALBUM TYPE HANDLING
+## Get the album type (single artist or various artists)
+get_album_type() {
+  while true; do
+    echo -n "Single artist or Various artists? (s/v): "
+    read album_type
+
+    case $album_type in
+      (s|S|single|Single)
+        ALBUM_TYPE=$ALBUM_SINGLE
+        log_info "Single Artist Album"
+        break
+        ;;
+      (v|V|various|Various)
+        ALBUM_TYPE=$ALBUM_VARIOUS
+        log_info "Various Artists Album"
+        break
         ;;
       (*)
         log_warning "Invalid choice. Try again."
@@ -183,9 +217,10 @@ sanitize_filename() {
 update_metadata() {
   local file_path=$1
   local artist=$2
-  local sanitized_title=${3%.m4a}
-  local album=$4
-  local year=$5
+  local album_artist=$3
+  local sanitized_title=${4%.m4a}
+  local album=$5
+  local year=$6
 
   local track_number=""
   local title=$(echo "$sanitized_title" | sed -E 's/^[0-9]{1,2}\. //g')
@@ -195,6 +230,7 @@ update_metadata() {
   
   ffmpeg -i "$file_path" \
     -metadata artist="$artist" \
+    -metadata album_artist="$album_artist" \
     -metadata title="$title" \
     -metadata track="$track_number" \
     -metadata album="$album" \
@@ -247,6 +283,7 @@ process_files() {
   local year=""
   local album=""
   local artist=""
+  local album_artist=""
   local artist_array=()
   if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALBUM" ]]; then
     for file in "$MUSIC_DIR/"*.m4a; do
@@ -268,18 +305,24 @@ process_files() {
       typeset -A artist_count
       for artist_name in "${artist_array[@]}"; do
         [[ -z "$artist_name" ]] && continue
-        (( artist_count["$artist_name"]++ ))
+        (( artist_count[$artist_name]++ ))
       done
       most_common_artist=""
       max_count=0
       for artist_item in ${(k)artist_count}; do
         if (( artist_count[$artist_item] > max_count )); then
           max_count=${artist_count[$artist_item]}
-          most_common_artist="$artist_item"
+          most_common_artist=$artist_item
         fi
       done
-      log_info "Using most common artist: $most_common_artist"
-      artist="$most_common_artist"
+      log_info "Most common artist on the album: $most_common_artist"
+      if [[ "$ALBUM_TYPE" == "$ALBUM_SINGLE" ]]; then
+        artist=$most_common_artist
+        album_artist=$most_common_artist
+      fi
+      if [[ "$ALBUM_TYPE" == "$ALBUM_SINGLE" ]]; then
+        album_artist=$most_common_artist
+      fi
     fi
   fi
   for file in "$MUSIC_DIR/"*.m4a; do
@@ -288,6 +331,9 @@ process_files() {
     if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALL" ]]; then
       artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
       year=$(ffprobe -v quiet -show_entries format_tags=date -of default=noprint_wrappers=1:nokey=1 "$file")
+    fi
+    if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALBUM" && "$ALBUM_TYPE" == "$ALBUM_VARIOUS" ]]; then
+      artist=$(ffprobe -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "$file")
     fi
 
     if [[ -n "$artist" ]]; then
@@ -300,7 +346,7 @@ process_files() {
 
       mv "$file" "$new_file"
       log_info "Sanitized filename: $file -> $new_file"
-      update_metadata "$new_file" "$clean_artist" "$sanitized_filename" "$album" "$year"
+      update_metadata "$new_file" "$clean_artist" "$album_artist" "$sanitized_filename" "$album" "$year"
     else
       if [[ -z "$artist" ]]; then
           log_warning "Artist metadata is missing for $file."
@@ -337,6 +383,9 @@ cleanup() {
 check_dependencies
 get_browser_cookies
 get_download_type
+if [[ "$SANITIZATION_MODE" == "$SANITIZATION_ALBUM" ]]; then
+    get_album_type
+fi
 
 while true; do
   if ! get_youtube_url; then
