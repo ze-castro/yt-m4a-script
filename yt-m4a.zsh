@@ -320,7 +320,7 @@ process_files() {
         artist=$most_common_artist
         album_artist=$most_common_artist
       fi
-      if [[ "$ALBUM_TYPE" == "$ALBUM_SINGLE" ]]; then
+      if [[ "$ALBUM_TYPE" == "$ALBUM_VARIOUS" ]]; then
         album_artist=$most_common_artist
       fi
     fi
