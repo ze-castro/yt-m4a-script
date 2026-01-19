@@ -74,7 +74,7 @@ I use `brew` to download `deno`, `ffmpeg` and `yt-dlp`, feel free to use another
 
 4. When prompted, enter the **YouTube video or playlist URL** when prompted.
 5. The M4A files will be saved in `~/Downloads/music/` when downloading unformatted audio.
-   If you download a playlist or album, it will be saved in `~/Downloads/album_name/`.
+   If you download an album, it will be saved in `~/Downloads/album_name/`.
 
 **NOTE**: I recommend downloading from `music.youtube.com` as it often has the correct metadata and album art.
 
