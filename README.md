@@ -106,6 +106,14 @@ WARNING: [youtube] PIuAFrLeXfY: Signature extraction failed: Some formats may be
 
 _Solution_: Update `yt-dlp` to the latest version with `brew upgrade yt-dlp`.
 
+### 2. Rate Limiting
+
+The sleep intervals set by `yt-dlp` are disabled by default to speed up downloads, but this may lead to rate limiting by YouTube.
+
+_Solution_: If you encounter rate limiting, enable the sleep intervals by removing the `--extractor-arg "youtube:playback_wait=0"` line from the script.
+
+```zsh
+
 ## 👾 Extra
 
 ### To double click to open the script

@@ -181,6 +181,7 @@ download_audio() {
   mkdir -p "$MUSIC_DIR"
   yt-dlp -x --audio-format aac \
     --extractor-args "youtube:player_client=tv" \
+    --extractor-arg "youtube:playback_wait=0" \
     --sleep-interval 3 \
     --max-sleep-interval 8 \
     --sleep-requests 1 \
